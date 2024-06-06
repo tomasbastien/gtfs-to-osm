@@ -1,6 +1,6 @@
 import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Point, LineString
+from shapely.geometry import Point
 import json
 
 # Load GTFS files into pandas DataFrames
@@ -10,27 +10,21 @@ stop_times_df = pd.read_csv('stop_times.txt')
 trips_df = pd.read_csv('trips.txt')
 
 # Merge relevant data
-stops_routes_df = stop_times_df.merge(trips_df, 
-on='trip_id').merge(routes_df, on='route_id').merge(stops_df, 
-on='stop_id')
+merged_df = stop_times_df.merge(trips_df, on='trip_id').merge(routes_df, on='route_id').merge(stops_df, on='stop_id')
 
-# Convert stops to GeoDataFrame
-geometry = [Point(xy) for xy in zip(stops_routes_df.stop_lon, 
-stops_routes_df.stop_lat)]
-stops_gdf = gpd.GeoDataFrame(stops_routes_df, geometry=geometry, 
-crs="EPSG:4326")
+# Group merged data by route_id
+grouped_routes = merged_df.groupby('route_id')
 
-# Convert routes to GeoJSON LineString
-routes_geojson = {}
-for route_id, group in stops_routes_df.groupby('route_id'):
-    line = LineString(group.geometry)
-    routes_geojson[route_id] = line.__geo_interface__
+# Iterate over each route
+for route_id, group in grouped_routes:
+    # Create GeoDataFrame for the route's stops
+    geometry = [Point(xy) for xy in zip(group['stop_lon'], group['stop_lat'])]
+    route_stops_gdf = gpd.GeoDataFrame(group, geometry=geometry, crs="EPSG:4326")
 
-# Write stops GeoJSON
-stops_gdf[['stop_id', 'stop_name', 'geometry']].to_file("stops.geojson", 
-driver='GeoJSON')
+    # Convert GeoDataFrame to GeoJSON format
+    route_stops_geojson = route_stops_gdf[['stop_id', 'stop_name', 'geometry']].to_json()
 
-# Write routes GeoJSON
-with open("routes.geojson", "w") as outfile:
-    json.dump(routes_geojson, outfile)
+    # Write stops GeoJSON to file
+    with open(f"route_{route_id}_stops.geojson", "w") as outfile:
+        outfile.write(route_stops_geojson)
 

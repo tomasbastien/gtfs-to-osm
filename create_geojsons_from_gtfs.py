@@ -64,7 +64,7 @@ def generate_geojson_per_route(gtfs_folder, output_folder):
         print(f'GeoJSON for route {route_id} saved to {output_path}')
 
 if __name__ == '__main__':
-    gtfs_folder = '/Users/bastien.tomas/Downloads/valmorel/'  # Replace with the path to your GTFS folder
-    output_folder = '.'  # Replace with your desired output folder
+    gtfs_folder = 'gtfs_datasets/export_lio'  # Replace with the path to your GTFS folder
+    output_folder = 'geojson_files/'  # Replace with your desired output folder
     generate_geojson_per_route(gtfs_folder, output_folder)
 

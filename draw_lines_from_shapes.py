@@ -3,9 +3,12 @@ import geopandas as gpd
 from shapely.geometry import LineString
 import json
 
+path_to_gtfs_folder='gtfs_datasets'
+path_for_generated_geojson='geojson_files'
+
 # Load shapes.txt and routes.txt into pandas DataFrames
-shapes_df = pd.read_csv('shapes.txt')
-routes_df = pd.read_csv('routes.txt')
+shapes_df = pd.read_csv(path_to_gtfs_folder+'/shapes.txt')
+routes_df = pd.read_csv(path_to_gtfs_folder+'/routes.txt')
 
 # Merge shapes with routes to get route names
 merged_df = shapes_df.merge(routes_df, left_on='shape_id', right_on='route_id')
@@ -34,6 +37,6 @@ for shape_id, group in grouped_shapes:
     }
 
     # Write shape GeoJSON to file
-    with open(f"shape_{shape_id}.geojson", "w") as outfile:
+    with open(f"{path_for_generated_geojson}/shape_{shape_id}.geojson", "w") as outfile:
         json.dump(shape_geojson, outfile)
 

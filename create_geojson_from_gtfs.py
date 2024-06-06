@@ -3,11 +3,14 @@ import geopandas as gpd
 from shapely.geometry import Point, LineString
 import json
 
+path_to_gtfs_folder='gtfs_datasets'
+path_for_generated_geojson='geojson_files'
+
 # Load GTFS files into pandas DataFrames
-stops_df = pd.read_csv('stops.txt')
-routes_df = pd.read_csv('routes.txt')
-stop_times_df = pd.read_csv('stop_times.txt')
-trips_df = pd.read_csv('trips.txt')
+stops_df = pd.read_csv('/stops.txt')
+routes_df = pd.read_csv('/routes.txt')
+stop_times_df = pd.read_csv('/stop_times.txt')
+trips_df = pd.read_csv('/trips.txt')
 
 # Merge relevant data
 stops_routes_df = stop_times_df.merge(trips_df, 
@@ -31,6 +34,6 @@ stops_gdf[['stop_id', 'stop_name', 'geometry']].to_file("stops.geojson",
 driver='GeoJSON')
 
 # Write routes GeoJSON
-with open("routes.geojson", "w") as outfile:
+with open(path_for_generated_geojson+"/routes.geojson", "w") as outfile:
     json.dump(routes_geojson, outfile)
 
